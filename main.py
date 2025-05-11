@@ -41,7 +41,7 @@ def main_signal():
             print("Buying Zone")
         else:
             print("RSI IS IN NEUTRAL RANGE")
-        print("*" * 10)
+        print("*" * 10, end='')
         i += 1
 main_signal()
         
