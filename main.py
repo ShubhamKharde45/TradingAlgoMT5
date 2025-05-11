@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 import plotly.express as px 
+import ta
 
 load_dotenv()
 def initialize_MT5():
@@ -20,13 +21,28 @@ def initialize_MT5():
 
 initialize_MT5()
 
+def get_rsi(symbol):
 
-def print_chart_symbol(symbol : str):
-    tick_data = pd.DataFrame(mt5.copy_rates_range(symbol, mt5.TIMEFRAME_D1, datetime(2025, 5, 11), datetime.now()))
-    
-    fig = px.line(tick_data, x=tick_data['time'], y=tick_data['close'])
-    # fig.show()
-    print(tick_data)
+    rsi_period = 14
+    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M1, 0, 100)
 
-print_chart_symbol('BTCUSDm')
+    df = pd.DataFrame(rates)
+    df['rsi'] = ta.momentum.RSIIndicator(close=df['close'], window=rsi_period).rsi()
+    return df['rsi'].iloc[-1]
+        
+
+def main_signal():
+    i = 0
+    while i < 10:
+        rsi = get_rsi('BTCUSDm')
+        if rsi>70:
+            print("Selling Zone")
+        elif rsi<70:
+            print("Buying Zone")
+        else:
+            print("RSI IS IN NEUTRAL RANGE")
+        print("*" * 10)
+        i += 1
+main_signal()
+        
 mt5.shutdown()
